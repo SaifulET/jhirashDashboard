@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-export default function TermsConditionsEditor() {
+export default function PrivacyAndPolicyEditor() {
   const [content, setContent] = useState('This is awesome');
 
   const modules = {
@@ -36,12 +36,12 @@ export default function TermsConditionsEditor() {
   ];
 const router = useRouter();
   const handleCancel = () => {
-  router.push('/pages/terms-conditions');
+  router.push('/pages/privacy-policy');
     // Add your cancel logic here
   };
 
   const handleSave = () => {
-   router.push('/pages/terms-conditions');
+   router.push('/pages/privacy-policy');
     // Add your save logic here
   };
 
@@ -52,10 +52,10 @@ const router = useRouter();
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Terms & Conditions
+              Privacy & Policy
             </h1>
             <p className="text-sm text-gray-600 mt-1">
-              Set terms & conditions for the M&S platform.
+              Set privacy & policy for the M&S platform.
             </p>
           </div>
           <div className="flex gap-3">
@@ -77,7 +77,7 @@ const router = useRouter();
         {/* Editor Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-4">
-            Write Terms & Conditions
+            Write Privacy & Policy
           </h2>
           
           <div className="quill-editor">

@@ -144,7 +144,7 @@ export default function DashboardLayout({
       icon: <HugeiconsIcon icon={Logout01Icon} size={iconSize} />,
       label: "Logout",
       id: "logout",
-      path: "/login", // Redirect to login page on logout
+      path: "/auth/signin", // Redirect to login page on logout
     },
   ], [iconSize]);
 

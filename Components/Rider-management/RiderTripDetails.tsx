@@ -2,32 +2,27 @@
 import React from 'react';
 import { 
   ArrowLeft, 
-
   MapPin, 
   Clock, 
-  Star,
-
+  Star, 
 } from 'lucide-react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Calendar03Icon, Car02Icon, Clock01Icon, Money04Icon, Vynil01Icon } from '@hugeicons/core-free-icons';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function PaymentTripDetail() {
+export default function RiderTripDetail() {
   return (
     <div className="min-h-screen bg-[#F4F4F6] p-6">
       <div className="mx-[174px] my-[40px]">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-
-            <Link href="/pages/payment-information">
-             <button className="w-10 h-10 rounded-lg bg-[#A6AFFF] flex items-center justify-center hover:bg-[#9299ee] transition-colors">
+            <Link href="/pages/rider-management/23"><button className="w-10 h-10 rounded-lg bg-[#A6AFFF] flex items-center justify-center hover:bg-[#9299ee] transition-colors">
               <ArrowLeft className="w-5 h-5 text-white" />
             </button></Link>
-           
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Trip details</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Detail of Rider Trip</h1>
               <p className="text-sm text-gray-500">This section will show every detail of a particular user.</p>
             </div>
           </div>

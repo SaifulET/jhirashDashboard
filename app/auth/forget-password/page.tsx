@@ -5,8 +5,6 @@ import React, { useState } from "react";
 import { Mail, ArrowLeft } from "lucide-react";
 import { NextPage } from "next";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import logo from "@/public/logo.png"
 
 const ForgotPasswordPage: NextPage = () => {
   const [email, setEmail] = useState<string>("");

@@ -19,7 +19,7 @@ const SignInPage: NextPage = () => {
     
     try {
      
-    router.push("/")
+    router.push("/pages/dashboard")
       
     } catch (error) {
       console.error('Sign in error:', error);
@@ -28,10 +28,6 @@ const SignInPage: NextPage = () => {
     }
   };
 
-  const handleCreateAccount = () => {
-    // Navigation logic for create account
-    router.push("/auth/signup")
-  };
 
   const handleForgotPassword = () => {
     // Navigation logic for forgot password

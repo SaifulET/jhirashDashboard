@@ -1,8 +1,9 @@
 'use client';
 
-import { ArrowLeft01Icon, ArrowLeft02Icon, LeftAngleIcon, RightAngleFreeIcons } from '@hugeicons/core-free-icons';
+import {  ArrowLeft02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState } from 'react';
 
 const ReportDetails: React.FC = () => {
@@ -16,9 +17,9 @@ const ReportDetails: React.FC = () => {
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-start gap-4">
-            <button className="w-10 h-10 rounded-lg text-black bg-[#A6AFFF] flex items-center justify-center hover:opacity-90 transition-opacity">
+           <Link href="/pages/customer-support"> <button className="w-10 h-10 rounded-lg text-black bg-[#A6AFFF] flex items-center justify-center hover:opacity-90 transition-opacity">
               <HugeiconsIcon icon={ArrowLeft02Icon} className="w-5 h-5" />
-            </button>
+            </button></Link>
             <div>
               <h1 className="text-2xl font-semibold text-gray-900 mb-1">
                 Report Details

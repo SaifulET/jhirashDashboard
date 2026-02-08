@@ -1,10 +1,10 @@
 
-import RiderTripDetail from '@/Components/driver-management/RiderTripDetails'
-import React from 'react'
+import PaymentTripDetail from '@/Components/paymentInformation/PaymentripDetails'
+
 
 function page() {
   return (
-    <div><RiderTripDetail/></div>
+    <div><PaymentTripDetail/></div>
   )
 }
 

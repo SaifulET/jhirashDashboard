@@ -1,9 +1,10 @@
-import RiderDetailPage from '@/Components/driver-management/riderDetails'
+import DriverDetailPage from '@/Components/Driver-Management/DriverDetails'
+
 import React from 'react'
 
 function page() {
   return (
-    <div><RiderDetailPage/></div>
+    <div><DriverDetailPage/></div>
   )
 }
 

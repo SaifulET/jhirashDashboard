@@ -4,8 +4,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { NextPage } from 'next';
-import Logo from '@/public/Tele-Portes Logo.svg';
-import Pattern from '@/public/pattern.svg';
 import { useRouter } from 'next/navigation'
 import Image from 'next/image';
 import logo from "@/public/logo.png"

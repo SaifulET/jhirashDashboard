@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -39,7 +38,7 @@ const generateDrivers = (): Driver[] => {
   return drivers;
 };
 
-const DriverManagement: React.FC = () => {
+const RiderManagement: React.FC = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [userStatusFilter, setUserStatusFilter] = useState<string>('all');
@@ -86,7 +85,7 @@ const DriverManagement: React.FC = () => {
   const handleView = (driverId: number) => {
     setOpenDropdownId(null);
     setDeleteModalData(null);
-    router.push(`/pages/driver-management/${driverId}`);
+    router.push(`/pages/rider-management/${driverId}`);
   };
 
   const handleDeleteClick = (driverId: number, driverName: string) => {
@@ -170,12 +169,12 @@ const DriverManagement: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-semibold text-gray-800 mb-2">Driver Management</h1>
+          <h1 className="text-3xl font-semibold text-gray-800 mb-2">Rider Management</h1>
         </div>
         
         <div className='flex justify-between'>
           <div>
-            <p className="text-gray-600">This section will display all drivers on your app along with their history.</p>
+            <p className="text-gray-600">This section will display all riders on your app along with their history.</p>
           </div>
           
           {/* Filter Buttons */}
@@ -239,7 +238,7 @@ const DriverManagement: React.FC = () => {
             <thead>
               <tr className="bg-[#EBEBEB]">
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">NO.</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Driver Name</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Rider Name</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Email</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Contact</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">User Status</th>
@@ -371,7 +370,7 @@ const DriverManagement: React.FC = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              Delete Driver
+              Delete Rider
             </button>
           </div>
         );
@@ -422,4 +421,4 @@ const DriverManagement: React.FC = () => {
   );
 };
 
-export default DriverManagement;
+export default RiderManagement;

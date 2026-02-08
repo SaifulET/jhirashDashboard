@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 
 export default function TermsConditions() {
@@ -14,7 +15,7 @@ export default function TermsConditions() {
           your terms comply with legal requirements.
         </p>
         
-        <button className="bg-[#240183] text-[#FFD283] px-6 py-2.5 rounded-md font-medium flex items-center gap-2 hover:bg-[#1a0161] transition-colors">
+        <Link href="/pages/terms-conditions/add"><button  className="bg-[#240183] text-[#FFD283] px-6 py-2.5 rounded-md font-medium flex items-center gap-2 hover:bg-[#1a0161] transition-colors">
           <svg 
             width="16" 
             height="16" 
@@ -31,7 +32,7 @@ export default function TermsConditions() {
             />
           </svg>
           Add
-        </button>
+        </button></Link>
       </div>
     </div>
   );

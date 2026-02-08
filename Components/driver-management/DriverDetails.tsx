@@ -29,7 +29,7 @@ import VehicleRegistrationView from './VehicleRegistrationView';
 type TabType = 'Profile' | 'Documents' | 'History' | 'Reports';
 type DocumentViewType = 'license' | 'vehicle-info' | 'insurance' | 'registration' | null;
 
-const DriverDetailPage = () => {
+const DriverDetails = () => {
   const [activeTab, setActiveTab] = useState<TabType>('Profile');
   const [documentView, setDocumentView] = useState<DocumentViewType>(null);
 
@@ -435,4 +435,4 @@ const DriverDetailPage = () => {
   );
 };
 
-export default DriverDetailPage;
+export default DriverDetails;

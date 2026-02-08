@@ -1,4 +1,4 @@
-import DriverManagement from '@/Components/Driver-Management/DriverManagement'
+import DriverManagement from '@/Components/driver-management/DriverManagement'
 import React from 'react'
 
 function page() {

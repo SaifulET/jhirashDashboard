@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 type UserStatus = 'Pending' | 'Verified' | 'Denied';
 type DeletionStatus = 'Yes' | 'No';
@@ -38,14 +39,26 @@ const generateDrivers = (): Driver[] => {
 };
 
 const DriverManagement: React.FC = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [userStatusFilter, setUserStatusFilter] = useState<string>('all');
   const [deletionStatusFilter, setDeletionStatusFilter] = useState<string>('all');
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [deleteModalData, setDeleteModalData] = useState<{
+    driverId: number; 
+    driverName: string; 
+    position: {x: number, y: number}
+  } | null>(null);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const actionButtonRefs = useRef<{[key: number]: HTMLButtonElement | null}>({});
 
-  const allDrivers = generateDrivers();
+  // Initialize with generated drivers
+  useEffect(() => {
+    setDrivers(generateDrivers());
+  }, []);
 
   // Filter drivers
-  const filteredDrivers = allDrivers.filter((driver) => {
+  const filteredDrivers = drivers.filter((driver) => {
     const matchesUserStatus = userStatusFilter === 'all' || driver.userStatus === userStatusFilter;
     const matchesDeletionStatus = deletionStatusFilter === 'all' || driver.deletionStatus === deletionStatusFilter;
     return matchesUserStatus && matchesDeletionStatus;
@@ -59,8 +72,80 @@ const DriverManagement: React.FC = () => {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      setOpenDropdownId(null);
+      setDeleteModalData(null);
     }
   };
+
+  const toggleDropdown = (id: number) => {
+    setOpenDropdownId(openDropdownId === id ? null : id);
+    setDeleteModalData(null); // Close delete modal if open
+  };
+
+  const handleView = (driverId: number) => {
+    setOpenDropdownId(null);
+    setDeleteModalData(null);
+    router.push(`/pages/driver-management/${driverId}`);
+  };
+
+  const handleDeleteClick = (driverId: number, driverName: string) => {
+    // Get position from the stored button ref
+    const button = actionButtonRefs.current[driverId];
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      setDeleteModalData({
+        driverId,
+        driverName,
+        position: {
+          x: rect.right - 160, // Position to align with button
+          y: rect.bottom + 8 // Position below the button
+        }
+      });
+    }
+    setOpenDropdownId(null);
+  };
+
+  const confirmDelete = () => {
+    if (deleteModalData) {
+      setDrivers(prevDrivers => prevDrivers.filter(driver => driver.id !== deleteModalData.driverId));
+      setDeleteModalData(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalData(null);
+  };
+
+  // Close modals when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Close action dropdown if click is outside
+      if (openDropdownId !== null) {
+        const actionButton = actionButtonRefs.current[openDropdownId];
+        const dropdownElement = document.querySelector('[data-action-dropdown]');
+        
+        if (actionButton && !actionButton.contains(target) && 
+            dropdownElement && !dropdownElement.contains(target)) {
+          setOpenDropdownId(null);
+        }
+      }
+      
+      // Close delete modal if click is outside
+      if (deleteModalData) {
+        const deleteModal = document.querySelector('[data-delete-modal]');
+        if (deleteModal && !deleteModal.contains(target)) {
+          setDeleteModalData(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdownId, deleteModalData]);
 
   const getStatusStyles = (status: UserStatus) => {
     switch (status) {
@@ -80,67 +165,72 @@ const DriverManagement: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4F6] p-8">
+    <div className="min-h-screen bg-[#F4F4F6] p-8 relative">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-semibold text-gray-800 mb-2">Driver Management</h1>
-         
         </div>
-<div className='flex justify-between'>
-            <div><p className="text-gray-600">This section will display all drivers on your app along with their history.</p></div>
-            {/* Filter Buttons */}
-        <div className="flex gap-3 mb-6">
-          <div className="relative">
-            <select
-              value={userStatusFilter}
-              onChange={(e) => {
-                setUserStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="appearance-none bg-[#A6AFFF] text-gray-800 px-6 py-2.5 rounded-lg font-medium cursor-pointer hover:bg-[#959FFF] transition-colors pr-10"
-            >
-              <option value="all">User Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Verified">Verified</option>
-              <option value="Denied">Denied</option>
-            </select>
-            <svg
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-
-          <div className="relative">
-            <select
-              value={deletionStatusFilter}
-              onChange={(e) => {
-                setDeletionStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="appearance-none bg-[#A6AFFF] text-gray-800 px-6 py-2.5 rounded-lg font-medium cursor-pointer hover:bg-[#959FFF] transition-colors pr-10"
-            >
-              <option value="all">Deletion Status</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-            <svg
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-           
-</div>
         
+        <div className='flex justify-between'>
+          <div>
+            <p className="text-gray-600">This section will display all drivers on your app along with their history.</p>
+          </div>
+          
+          {/* Filter Buttons */}
+          <div className="flex gap-3 mb-6">
+            <div className="relative">
+              <select
+                value={userStatusFilter}
+                onChange={(e) => {
+                  setUserStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                  setOpenDropdownId(null);
+                  setDeleteModalData(null);
+                }}
+                className="appearance-none bg-[#A6AFFF] text-gray-800 px-6 py-2.5 rounded-lg font-medium cursor-pointer hover:bg-[#959FFF] transition-colors pr-10"
+              >
+                <option value="all">User Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Verified">Verified</option>
+                <option value="Denied">Denied</option>
+              </select>
+              <svg
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <div className="relative">
+              <select
+                value={deletionStatusFilter}
+                onChange={(e) => {
+                  setDeletionStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                  setOpenDropdownId(null);
+                  setDeleteModalData(null);
+                }}
+                className="appearance-none bg-[#A6AFFF] text-gray-800 px-6 py-2.5 rounded-lg font-medium cursor-pointer hover:bg-[#959FFF] transition-colors pr-10"
+              >
+                <option value="all">Deletion Status</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+              <svg
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -174,7 +264,19 @@ const DriverManagement: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button className="text-gray-600 hover:text-gray-800 text-xl font-bold">⋮</button>
+                    <div className="relative">
+                     <button 
+  ref={el => {
+    if (el) {
+      actionButtonRefs.current[driver.id] = el;
+    }
+  }}
+  onClick={() => toggleDropdown(driver.id)}
+  className="text-gray-600 hover:text-gray-800 text-xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-colors"
+>
+  ⋮
+</button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -185,7 +287,7 @@ const DriverManagement: React.FC = () => {
         {/* Pagination */}
         <div className="flex items-center justify-between mt-6">
           <p className="text-sm text-gray-600">
-            No of Results {filteredDrivers.length} out of {allDrivers.length}
+            No of Results {filteredDrivers.length} out of {drivers.length}
           </p>
           <div className="flex gap-2">
             <button
@@ -231,6 +333,90 @@ const DriverManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Action Dropdown Menu */}
+      {openDropdownId !== null && (() => {
+        const button = actionButtonRefs.current[openDropdownId];
+        if (!button) return null;
+        
+        const rect = button.getBoundingClientRect();
+        const driver = drivers.find(d => d.id === openDropdownId);
+        if (!driver) return null;
+        
+        return (
+          <div 
+            className="fixed w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+            data-action-dropdown
+            style={{
+              left: `${rect.right - 160}px`,
+              top: `${rect.bottom + 8}px`
+            }}
+          >
+            <button
+              onClick={() => handleView(driver.id)}
+              className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              View Details
+            </button>
+            <div className="border-t border-gray-200"></div>
+            <button
+              onClick={() => handleDeleteClick(driver.id, driver.name)}
+              className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-lg transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Driver
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalData && (
+        <div 
+          className="fixed bg-white rounded-lg shadow-xl border border-gray-200 z-50 w-64 p-4"
+          data-delete-modal
+          style={{
+            left: `${deleteModalData.position.x}px`,
+            top: `${deleteModalData.position.y}px`
+          }}
+        >
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-8 h-8 bg-[#B91C1C] rounded-full flex-shrink-0 flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                Delete {deleteModalData.driverName}?
+              </h3>
+              <p className="text-xs text-gray-600">
+                Once deleted, you wont be able to recover this drivers data.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={cancelDelete}
+              className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="flex-1 px-3 py-2 bg-[#B91C1C] text-white text-sm rounded-lg font-medium hover:bg-[#991B1B] transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

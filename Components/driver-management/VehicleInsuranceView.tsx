@@ -3,76 +3,104 @@
 import React from 'react';
 import Image from 'next/image';
 import { ArrowLeft, Eye } from 'lucide-react';
+import DocumentReviewActions from './DocumentReviewActions';
+import type { DriverDocumentDetail } from '@/types/driver';
 
 interface VehicleInsuranceViewProps {
   onBack: () => void;
+  detail: DriverDocumentDetail | null;
+  isLoading: boolean;
+  errorMessage: string;
+  isReviewing: boolean;
+  onApprove: () => Promise<void>;
+  onReject: (reason: string) => Promise<void>;
 }
 
-const VehicleInsuranceView: React.FC<VehicleInsuranceViewProps> = ({ onBack }) => {
+const VehicleInsuranceView: React.FC<VehicleInsuranceViewProps> = ({
+  onBack,
+  detail,
+  isLoading,
+  errorMessage,
+  isReviewing,
+  onApprove,
+  onReject,
+}) => {
   const [showFullView, setShowFullView] = React.useState(false);
+  const document = detail?.document;
 
   return (
-    <div className="bg-white rounded-lg ">
+    <div className="bg-white rounded-lg">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#A6AFFF] hover:bg-[#97a0f5] transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-white" />
-            </button>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Detail of Vehicle Insurance Information
-              </h2>
-              <p className="text-sm text-gray-500">
-                This section will show every detail of a particular user.
-              </p>
-            </div>
-          </div>
-          <button className="px-6 py-2.5 bg-[#BC0E01] hover:bg-[#a00c01] text-white rounded-lg font-medium transition-colors">
-            Delete
-          </button>
-        </div>
-
-        {/* Insurance Document Image */}
-        <div className="mb-6">
-          <div className="relative aspect-[16/9] rounded-lg overflow-hidden">
-            <Image
-              src="/driver.svg"
-              alt="Vehicle Insurance Document"
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-4">
-          <button className="px-8 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-medium rounded-lg transition-colors">
-            Decline
-          </button>
+        <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => setShowFullView(true)}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#A6AFFF] hover:bg-[#97a0f5] text-gray-900 font-medium rounded-lg transition-colors"
+            onClick={onBack}
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#A6AFFF] hover:bg-[#97a0f5] transition-colors"
           >
-            <Eye className="w-4 h-4" />
-            Full View
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <button className="px-8 py-2.5 bg-[#10B981] hover:bg-[#0ea572] text-white font-medium rounded-lg transition-colors">
-            Accept
-          </button>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Detail of Vehicle Insurance Information
+            </h2>
+            <p className="text-sm text-gray-500">
+              This section shows every detail of the selected document.
+            </p>
+          </div>
         </div>
+
+        {isLoading && (
+          <div className="py-10 text-center text-gray-500">
+            Loading document details...
+          </div>
+        )}
+
+        {!isLoading && errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {errorMessage}
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && document && detail && (
+          <>
+            <div className="mb-6">
+              <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+                <Image
+                  src={document.fileUrl}
+                  alt={detail.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-center mb-6">
+              <button
+                onClick={() => setShowFullView(true)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-[#A6AFFF] hover:bg-[#97a0f5] text-gray-900 font-medium rounded-lg transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                Full View
+              </button>
+            </div>
+
+            <DocumentReviewActions
+              status={detail.status}
+              rejectionReason={document.rejectionReason}
+              isReviewing={isReviewing}
+              errorMessage={errorMessage}
+              onApprove={onApprove}
+              onReject={onReject}
+            />
+          </>
+        )}
       </div>
 
-      {/* Full View Modal */}
-      {showFullView && (
+      {showFullView && document && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-5xl w-full mx-4">
-            <div className="relative aspect-[16/9] rounded-lg overflow-hidden mb-4">
+            <div className="relative aspect-[16/9] rounded-lg overflow-hidden mb-4 bg-gray-100">
               <Image
-                src="/driver.svg"
+                src={document.fileUrl}
                 alt="Full View"
                 fill
                 className="object-contain"

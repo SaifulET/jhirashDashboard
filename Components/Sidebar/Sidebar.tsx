@@ -19,6 +19,7 @@ import {
   Logout01Icon,
   Menu01Icon, 
 } from '@hugeicons/core-free-icons';
+import { useAuthStore } from '@/store/auth-store';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -62,8 +63,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>)  {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const admin = useAuthStore((state) => state.admin);
+  const logout = useAuthStore((state) => state.logout);
   const iconSize = 20;
 
   // Define menu items inside the component
@@ -180,11 +184,11 @@ export default function DashboardLayout({
     
     // Handle special cases
     if (item.id === 'logout') {
-      // Handle logout logic
-      console.log('Logging out...');
-      // You might want to clear localStorage/sessionStorage here
-      // await logout();
-      router.push(item.path);
+      setIsLoggingOut(true);
+      logout().finally(() => {
+        setIsLoggingOut(false);
+        router.replace(item.path);
+      });
       return;
     }
     
@@ -215,8 +219,12 @@ export default function DashboardLayout({
             </div>
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
-                <div className="text-[#262626] font-semibold text-sm truncate">Steve Hard</div>
-                <div className="text-[#262626] text-xs opacity-60 truncate">Admin</div>
+                <div className="text-[#262626] font-semibold text-sm truncate">
+                  {admin?.name || 'Admin User'}
+                </div>
+                <div className="text-[#262626] text-xs opacity-60 truncate">
+                  {admin?.role || 'admin'}
+                </div>
               </div>
             )}
           </div>
@@ -288,7 +296,11 @@ export default function DashboardLayout({
                   label={item.label}
                   isActive={activeItem === item.id}
                   isCollapsed={isCollapsed}
-                  onClick={() => handleItemClick(item)}
+                  onClick={() => {
+                    if (!isLoggingOut) {
+                      handleItemClick(item);
+                    }
+                  }}
                 />
               ))}
             </div>

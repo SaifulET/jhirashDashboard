@@ -1,3 +1,4 @@
+import AuthGuard from "@/Components/auth/AuthGuard";
 import DashboardLayout from "@/Components/Sidebar/Sidebar";
 
 export default function RootLayout({
@@ -7,12 +8,11 @@ export default function RootLayout({
 }>) {
   return (
     <div className="min-h-screen">
-      {/* Remove the grid container and handle layout within DashboardLayout */}
-      <DashboardLayout>
-        <div >
-          {children}
-        </div>
-      </DashboardLayout>
+      <AuthGuard>
+        <DashboardLayout>
+          <div>{children}</div>
+        </DashboardLayout>
+      </AuthGuard>
     </div>
   );
 }

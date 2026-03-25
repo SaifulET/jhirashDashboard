@@ -1,24 +1,34 @@
-
-"use client"; // If using App Router
+"use client";
 
 import React, { useState } from "react";
 import { Mail, ArrowLeft } from "lucide-react";
 import { NextPage } from "next";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 
 const ForgotPasswordPage: NextPage = () => {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const router = useRouter();
+  const requestPasswordReset = useAuthStore(
+    (state) => state.requestPasswordReset
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage("");
 
     try {
+      await requestPasswordReset(email.trim());
       router.push("/auth/otp");
     } catch (error) {
-      console.error("Forgot password error:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to send the verification code."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -30,15 +40,11 @@ const ForgotPasswordPage: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F4F6] relative">
-      {/* Main content - Positioned to avoid overlap with patterns */}
       <div
         className="relative z-10 min-h-screen flex items-center justify-center "
         style={{ paddingTop: "139px", paddingBottom: "139px" }}
       >
-        <div className="w-[564px]  bg-white  p-8 flex flex-col items-center gap-6  rounded-xl shadow-lg">
-         
-
-          {/* Title and subtitle section */}
+        <div className="w-[564px] bg-white p-8 flex flex-col items-center gap-6 rounded-xl shadow-lg">
           <div className="w-[277px] h-16 flex flex-col items-center gap-1">
             <h2 className="w-[277px] h-9 text-3xl font-semibold text-gray-800 leading-9 text-center">
               Forgot Password
@@ -48,9 +54,10 @@ const ForgotPasswordPage: NextPage = () => {
             </p>
           </div>
 
-          {/* Form section */}
-          <div className="w-[500px] h-[238px] flex flex-col gap-6">
-            {/* Email field */}
+          <form
+            onSubmit={handleSubmit}
+            className="w-[500px] h-[238px] flex flex-col gap-6"
+          >
             <div className="flex flex-col gap-2 h-[86px]">
               <label
                 htmlFor="email"
@@ -78,11 +85,10 @@ const ForgotPasswordPage: NextPage = () => {
               </div>
             </div>
 
-            {/* Next button */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading || !email}
-              className="w-full bg-[#240183] hover:bg-[#311483]   text-[#FFD283] font-medium text-base py-4 px-8 rounded-xl h-[55px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 "
+              className="w-full bg-[#240183] hover:bg-[#311483] text-[#FFD283] font-medium text-base py-4 px-8 rounded-xl h-[55px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -94,16 +100,20 @@ const ForgotPasswordPage: NextPage = () => {
               )}
             </button>
 
-            {/* Back to Login button */}
+            {errorMessage && (
+              <p className="text-sm text-red-500 text-center">{errorMessage}</p>
+            )}
+
             <button
+              type="button"
               onClick={handleBackToLogin}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 text-[#240183] font-medium text-base py-3.5 px-6 rounded-xl h-[52px]  transition-colors duration-200   "
+              className="w-full flex items-center justify-center gap-2 text-[#240183] font-medium text-base py-3.5 px-6 rounded-xl h-[52px] transition-colors duration-200"
             >
               <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
               Back to Login
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

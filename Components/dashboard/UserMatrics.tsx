@@ -9,12 +9,20 @@ interface MonthData {
 }
 
 interface UserOverviewProps {
-  data: MonthData[];
-  totalRider: number;
-  totalDriver: number;
+  data?: MonthData[];
+  totalRider?: number;
+  totalDriver?: number;
+  selectedYear: number;
+  onYearChange: (year: number) => void;
 }
 
-const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriver }) => {
+const UserOverview: React.FC<UserOverviewProps> = ({
+  data,
+  totalRider,
+  totalDriver,
+  selectedYear,
+  onYearChange,
+}) => {
   const [hoveredBar, setHoveredBar] = useState<{
     type: 'rider' | 'driver' | null;
     value: number;
@@ -22,12 +30,14 @@ const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriv
     index: number;
   } | null>(null);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
-  const [selectedYear, setSelectedYear] = useState('Year');
+  const safeData = data ?? [];
+  const safeTotalRider = totalRider ?? 0;
+  const safeTotalDriver = totalDriver ?? 0;
   
   const yearDropdownRef = useRef<HTMLDivElement>(null);
   const years = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
 
-  const maxValue = Math.max(...data.flatMap((d) => [d.rider, d.driver]));
+  const maxValue = Math.max(1, ...safeData.flatMap((d) => [d.rider, d.driver]));
   const chartHeight = 240;
   const scale = chartHeight / maxValue;
 
@@ -76,17 +86,19 @@ const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriv
             {showYearDropdown && (
               <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-30">
                 {years.map((year) => (
-                  <button
-                    key={year}
-                    onClick={() => {
-                      setSelectedYear(year);
-                      setShowYearDropdown(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                      selectedYear === year ? 'bg-[#C5C9FF] text-gray-900' : 'text-gray-700'
-                    }`}
-                  >
-                    {year}
+                <button
+                  key={year}
+                  onClick={() => {
+                    onYearChange(Number(year));
+                    setShowYearDropdown(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                    String(selectedYear) === year
+                      ? 'bg-[#C5C9FF] text-gray-900'
+                      : 'text-gray-700'
+                  }`}
+                >
+                  {year}
                   </button>
                 ))}
               </div>
@@ -117,7 +129,7 @@ const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriv
 
             {/* Bars container */}
             <div className="absolute left-12 right-0 top-2 bottom-10 flex items-end justify-between px-4">
-              {data.map((monthData, index) => (
+              {safeData.map((monthData, index) => (
                 <div key={index} className="flex flex-col items-center h-full">
                   <div className="flex items-end justify-center gap-1.5 h-full">
                     {/* Rider bar */}
@@ -180,7 +192,7 @@ const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriv
 
             {/* Month labels */}
             <div className="absolute left-12 right-0 bottom-0 flex items-center justify-between px-4">
-              {data.map((monthData, index) => (
+              {safeData.map((monthData, index) => (
                 <div key={index} className="flex flex-col items-center w-12">
                   <div className="h-2 w-px bg-gray-300"></div>
                   <span className="text-xs text-gray-500 mt-1">{monthData.month}</span>
@@ -210,11 +222,11 @@ const UserOverview: React.FC<UserOverviewProps> = ({ data, totalRider, totalDriv
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white rounded-2xl p-6">
           <p className="text-sm text-gray-500 mb-2">Total Rider</p>
-          <p className="text-3xl font-bold text-gray-900">{totalRider.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900">{safeTotalRider.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-2xl p-6">
           <p className="text-sm text-gray-500 mb-2">Total Driver</p>
-          <p className="text-3xl font-bold text-gray-900">{totalDriver.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900">{safeTotalDriver.toLocaleString()}</p>
         </div>
       </div>
     </div>

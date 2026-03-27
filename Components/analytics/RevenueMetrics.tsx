@@ -2,29 +2,50 @@
 
 import { useState } from 'react';
 
-const RevenueMetrics = () => {
-  const [selectedYear, setSelectedYear] = useState('Year');
+interface RevenueMetricsItem {
+  month: string;
+  amount: number;
+}
+
+interface RevenueMetricsProps {
+  data?: RevenueMetricsItem[];
+  currency?: string;
+  totalRevenue?: number;
+  selectedYear: number;
+  onYearChange: (year: number) => void;
+}
+
+const RevenueMetrics: React.FC<RevenueMetricsProps> = ({
+  data,
+  currency,
+  totalRevenue,
+  selectedYear,
+  onYearChange,
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const safeData = data ?? [];
+  const safeCurrency = currency || 'USD';
+  const safeTotalRevenue = totalRevenue || 0;
 
-  const years = ['2024', '2023', '2022', '2021', '2020'];
-  
-  const monthlyData = [
-    { month: 'JAN', value: 35000 },
-    { month: 'FEB', value: 38000 },
-    { month: 'MAR', value: 36000 },
-    { month: 'APR', value: 37000 },
-    { month: 'MAY', value: 38500 },
-    { month: 'JUN', value: 39000 },
-    { month: 'JUL', value: 38000 },
-    { month: 'AUG', value: 37500 },
-    { month: 'SEP', value: 37000 },
-    { month: 'OCT', value: 38000 },
-    { month: 'NOV', value: 37500 },
-    { month: 'DEC', value: 38000 },
-  ];
+  const years = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+  const maxValue = Math.max(1, ...safeData.map((item) => item.amount));
 
-  const maxValue = 80000;
+  const formatCurrency = (value: number) => {
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: safeCurrency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    } catch {
+      return `${safeCurrency} ${value.toFixed(2)}`;
+    }
+  };
+
+  const topLabel = Math.ceil(maxValue);
+  const midLabel = Math.ceil(maxValue / 2);
 
   return (
     <div className="w-full bg-white p-6 rounded-lg">
@@ -56,7 +77,7 @@ const RevenueMetrics = () => {
                 <button
                   key={year}
                   onClick={() => {
-                    setSelectedYear(year);
+                    onYearChange(Number(year));
                     setIsDropdownOpen(false);
                   }}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-md last:rounded-b-md"
@@ -72,8 +93,8 @@ const RevenueMetrics = () => {
       <div className="relative h-72">
         {/* Y-axis labels */}
         <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between py-4">
-          <span className="text-xs text-gray-500">80k</span>
-          <span className="text-xs text-gray-500">40k</span>
+          <span className="text-xs text-gray-500">{topLabel}</span>
+          <span className="text-xs text-gray-500">{midLabel}</span>
           <span className="text-xs text-gray-500">0</span>
         </div>
 
@@ -87,10 +108,10 @@ const RevenueMetrics = () => {
             
             {/* Bars container */}
             <div className="relative h-full flex items-end justify-between px-4">
-              {monthlyData.map((data, index) => {
-                const heightPercentage = (data.value / maxValue) * 100;
+              {safeData.map((item, index) => {
+                const heightPercentage = (item.amount / maxValue) * 100;
                 return (
-                  <div key={data.month} className="flex flex-col items-center justify-end h-full" style={{ width: '6%' }}>
+                  <div key={item.month} className="flex flex-col items-center justify-end h-full" style={{ width: '6%' }}>
                     <div
                       className="w-full max-w-[40px] relative cursor-pointer transition-all duration-300 hover:opacity-80"
                       style={{ 
@@ -104,7 +125,7 @@ const RevenueMetrics = () => {
                     >
                       {hoveredBar === index && (
                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-10">
-                          ${data.value.toLocaleString()}
+                          {formatCurrency(item.amount)}
                         </div>
                       )}
                     </div>
@@ -117,12 +138,19 @@ const RevenueMetrics = () => {
 
         {/* X-axis labels */}
         <div className="ml-12 flex justify-between px-4 mt-2">
-          {monthlyData.map((data) => (
-            <div key={data.month} className="flex justify-center" style={{ width: '6%' }}>
-              <span className="text-xs text-gray-600">{data.month}</span>
+          {safeData.map((item) => (
+            <div key={item.month} className="flex justify-center" style={{ width: '6%' }}>
+              <span className="text-xs text-gray-600">{item.month}</span>
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="mt-6 rounded-xl bg-[#F7F7FB] px-5 py-4">
+        <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
+        <p className="text-3xl font-bold text-gray-900">
+          {formatCurrency(safeTotalRevenue)}
+        </p>
       </div>
     </div>
   );

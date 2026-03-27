@@ -3,20 +3,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 interface MonthlyBreakdownProps {
+  currency: string;
   regularVehicles: number;
   premiumVehicles: number;
   total: number;
+  selectedMonth: number;
+  selectedYear: number;
+  onMonthChange: (month: number) => void;
+  onYearChange: (year: number) => void;
 }
 
 const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
+  currency,
   regularVehicles,
   premiumVehicles,
   total,
+  selectedMonth,
+  selectedYear,
+  onMonthChange,
+  onYearChange,
 }) => {
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState('January');
-  const [selectedYear, setSelectedYear] = useState('2024');
   
   const monthDropdownRef = useRef<HTMLDivElement>(null);
   const yearDropdownRef = useRef<HTMLDivElement>(null);
@@ -43,6 +51,19 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const formatCurrency = (value: number) => {
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    } catch {
+      return `${currency} ${value.toFixed(2)}`;
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="">
@@ -57,7 +78,7 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
             onClick={() => setShowMonthDropdown(!showMonthDropdown)}
             className="px-4 py-2 bg-[#A6AFFF] text-gray-700 rounded-lg text-sm font-medium hover:bg-[#9099FF] transition-colors flex items-center gap-2"
           >
-            {selectedMonth}
+            {months[selectedMonth - 1]}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -75,11 +96,13 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
                 <button
                   key={month}
                   onClick={() => {
-                    setSelectedMonth(month);
+                    onMonthChange(months.indexOf(month) + 1);
                     setShowMonthDropdown(false);
                   }}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                    selectedMonth === month ? 'bg-[#A6AFFF] text-white' : 'text-gray-700'
+                    months[selectedMonth - 1] === month
+                      ? 'bg-[#A6AFFF] text-white'
+                      : 'text-gray-700'
                   }`}
                 >
                   {month}
@@ -113,11 +136,13 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
                 <button
                   key={year}
                   onClick={() => {
-                    setSelectedYear(year);
+                    onYearChange(Number(year));
                     setShowYearDropdown(false);
                   }}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                    selectedYear === year ? 'bg-[#A6AFFF] text-white' : 'text-gray-700'
+                    String(selectedYear) === year
+                      ? 'bg-[#A6AFFF] text-white'
+                      : 'text-gray-700'
                   }`}
                 >
                   {year}
@@ -134,7 +159,7 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Regular Vehicles</p>
-              <p className="text-3xl font-bold text-gray-900">${regularVehicles.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-gray-900">{formatCurrency(regularVehicles)}</p>
             </div>
             <div className="bg-[#A6AFFF] rounded-xl p-3">
               <svg
@@ -160,7 +185,7 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Premium Vehicles</p>
-              <p className="text-3xl font-bold text-gray-900">${premiumVehicles.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-gray-900">{formatCurrency(premiumVehicles)}</p>
             </div>
             <div className="bg-[#A6AFFF] rounded-xl p-3">
               <svg
@@ -186,7 +211,7 @@ const MonthlyBreakdown: React.FC<MonthlyBreakdownProps> = ({
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Total</p>
-              <p className="text-3xl font-bold text-gray-900">${total.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-gray-900">{formatCurrency(total)}</p>
             </div>
             <div className="bg-[#A6AFFF] rounded-xl p-3">
               <svg

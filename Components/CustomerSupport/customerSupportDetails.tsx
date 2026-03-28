@@ -1,301 +1,338 @@
 'use client';
 
-import {  ArrowLeft02Icon } from '@hugeicons/core-free-icons';
+import { ArrowLeft02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import { useParams } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useCustomerSupportStore } from '@/store/customer-support-store';
+
+const formatDateTime = (value: string) =>
+  new Date(value).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+const toSentenceCase = (value: string | null | undefined) => {
+  if (!value) {
+    return 'N/A';
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
+const formatComplaint = (value: boolean) => (value ? 'Yes' : 'No');
+
+const getStatusStyles = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'resolved':
+    case 'closed':
+      return 'bg-[#D7FFEA] text-[#05895A]';
+    case 'pending':
+    default:
+      return 'bg-[#FEE4D6] text-[#E26A02]';
+  }
+};
+
+const getInitials = (value: string | null | undefined) => {
+  if (!value) {
+    return 'NA';
+  }
+
+  return value
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+};
+
+const getJsonPreview = (value: unknown) => {
+  if (!value) {
+    return 'N/A';
+  }
+
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return 'N/A';
+  }
+};
+
+const InfoRow: React.FC<{ label: string; value: string | null | undefined }> = ({
+  label,
+  value,
+}) => (
+  <div className="rounded-lg bg-gray-50 px-4 py-3">
+    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+      {label}
+    </p>
+    <p className="mt-1 text-sm text-gray-900 break-words">{value || 'N/A'}</p>
+  </div>
+);
 
 const ReportDetails: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [modalOption, setModalOption] = useState<'send' | 'resolved'>('send');
-  const [message, setMessage] = useState('');
+  const params = useParams<{ slug: string }>();
+  const ticketId = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
+  const selectedTicket = useCustomerSupportStore((state) => state.selectedTicket);
+  const isDetailLoading = useCustomerSupportStore((state) => state.isDetailLoading);
+  const detailErrorMessage = useCustomerSupportStore(
+    (state) => state.detailErrorMessage
+  );
+  const fetchCustomerSupportDetail = useCustomerSupportStore(
+    (state) => state.fetchCustomerSupportDetail
+  );
+  const clearSelectedTicket = useCustomerSupportStore(
+    (state) => state.clearSelectedTicket
+  );
+
+  useEffect(() => {
+    if (ticketId) {
+      void fetchCustomerSupportDetail(ticketId);
+    }
+
+    return () => {
+      clearSelectedTicket();
+    };
+  }, [clearSelectedTicket, fetchCustomerSupportDetail, ticketId]);
 
   return (
-    <>
-      <div className="min-h-screen bg-[#F4F4F6] px-[144px] py-[40px]">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+    <div className="min-h-screen bg-[#F4F4F6] px-6 py-10 lg:px-16">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-4">
-           <Link href="/pages/customer-support"> <button className="w-10 h-10 rounded-lg text-black bg-[#A6AFFF] flex items-center justify-center hover:opacity-90 transition-opacity">
-              <HugeiconsIcon icon={ArrowLeft02Icon} className="w-5 h-5" />
-            </button></Link>
+            <Link href="/pages/customer-support">
+              <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#A6AFFF] text-black transition-opacity hover:opacity-90">
+                <HugeiconsIcon icon={ArrowLeft02Icon} className="h-5 w-5" />
+              </button>
+            </Link>
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+              <h1 className="text-2xl font-semibold text-gray-900">
                 Report Details
               </h1>
-              <p className="text-sm text-gray-600">
-                This section shows details for admin review or possible action against the reported party.
+              <p className="mt-1 text-sm text-gray-600">
+                Review the selected customer support submission and its metadata.
               </p>
             </div>
           </div>
-          <button className="px-[32px] py-[21px] bg-[#BC0E01] text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-            Delete
-          </button>
-        </div>
 
-        {/* Reporting Party Section */}
-        <div className="bg-white rounded-2xl p-6 mb-4 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">
-                REPORTING PARTY (VICTIM)
-              </span>
-              <span className="px-3 py-1 bg-[#FEE4D6] text-[#E26A02] text-xs font-medium rounded-full">
-                Pending
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
-               <Image src="/profile.svg" alt="Tuval Mor" className="w-full h-full object-cover" width={48} height={48}/>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Tuval Mor</h3>
-                <p className="text-sm text-gray-600">Rider</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="10" cy="10" r="9" stroke="#DC2626" strokeWidth="2" fill="none" />
-                    <path d="M10 6V10" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="10" cy="14" r="0.5" fill="#DC2626" stroke="#DC2626" strokeWidth="1" />
-                  </svg>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">52</div>
-                  <div className="text-xs text-gray-500 uppercase">Accused</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#E9A906] flex items-center justify-center">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 2L12.245 7.5L18 8.26L14 12.14L15.09 18L10 15.27L4.91 18L6 12.14L2 8.26L7.755 7.5L10 2Z"
-                      fill="white"
-                      stroke="white"
-                      strokeWidth="1"
-                    />
-                  </svg>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">4.7</div>
-                  <div className="text-xs text-gray-500 uppercase">Rating</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Report Message */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">
-              Why I am not seeing any driver?
-            </h4>
-            <p className="text-sm text-gray-600">
-              I want to know whats the reason i am not seeing any rider in my area.
-            </p>
-          </div>
-
-          <div className="mt-4 flex justify-end">
-            <button className="px-6 py-2.5 bg-[#A6AFFF] text-black rounded-lg font-medium hover:opacity-90 transition-opacity">
-              View Profile
-            </button>
-          </div>
-        </div>
-
-        {/* Reported Party Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="mb-6">
-            <span className="text-sm font-medium text-gray-700">
-              REPORTED PARTY (OFFENDER)
-            </span>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
-                              <Image src="/profile.svg" alt="Tuval Mor" className="w-full h-full object-cover" width={48} height={48}/>
-
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">David John</h3>
-                <p className="text-sm text-gray-600">Driver</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="10" cy="10" r="9" stroke="#DC2626" strokeWidth="2" fill="none" />
-                    <path d="M10 6V10" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="10" cy="14" r="0.5" fill="#DC2626" stroke="#DC2626" strokeWidth="1" />
-                  </svg>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">52</div>
-                  <div className="text-xs text-gray-500 uppercase">Accused</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#E9A906] flex items-center justify-center">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 2L12.245 7.5L18 8.26L14 12.14L15.09 18L10 15.27L4.91 18L6 12.14L2 8.26L7.755 7.5L10 2Z"
-                      fill="white"
-                      stroke="white"
-                      strokeWidth="1"
-                    />
-                  </svg>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">4.7</div>
-                  <div className="text-xs text-gray-500 uppercase">Rating</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-6 py-2.5 bg-[#2C0075] text-[#FFD283] rounded-lg font-medium hover:opacity-90 transition-opacity"
+          {selectedTicket && (
+            <span
+              className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-medium ${getStatusStyles(
+                selectedTicket.status
+              )}`}
             >
-              Take Action
-            </button>
-            <button className="px-6 py-2.5 bg-[#A6AFFF] text-black rounded-lg font-medium hover:opacity-90 transition-opacity">
-              View Profile
-            </button>
-          </div>
+              {toSentenceCase(selectedTicket.status)}
+            </span>
+          )}
         </div>
+
+        {detailErrorMessage && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {detailErrorMessage}
+          </div>
+        )}
+
+        {isDetailLoading && (
+          <div className="rounded-2xl bg-white p-10 text-center text-sm text-gray-500 shadow-sm">
+            Loading customer support details...
+          </div>
+        )}
+
+        {!isDetailLoading && selectedTicket && (
+          <div className="space-y-6">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[#DDE2FF] text-sm font-semibold text-[#240183]">
+                    {selectedTicket.reportingParty?.profileImage ? (
+                      <img
+                        src={selectedTicket.reportingParty.profileImage}
+                        alt={selectedTicket.reportingParty.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      getInitials(selectedTicket.reportingParty?.name)
+                    )}
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {selectedTicket.reportingParty?.name || 'Unknown user'}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {toSentenceCase(selectedTicket.reportingParty?.role)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className="rounded-xl bg-gray-50 px-4 py-3 text-center">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {selectedTicket.reportingParty?.ratingAvg ?? 'N/A'}
+                    </div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      Rating
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-gray-50 px-4 py-3 text-center">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {selectedTicket.reportingParty?.ratingCount ?? 'N/A'}
+                    </div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      Ratings
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-gray-50 px-4 py-3 text-center">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {selectedTicket.reportingParty?.accusedCount ?? 'N/A'}
+                    </div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      Accused
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-gray-50 px-4 py-3 text-center">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {toSentenceCase(selectedTicket.reportingParty?.status)}
+                    </div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      Account
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <InfoRow
+                  label="Email"
+                  value={selectedTicket.reportingParty?.email}
+                />
+                <InfoRow
+                  label="Contact"
+                  value={selectedTicket.reportingParty?.phone}
+                />
+                <InfoRow label="Entry Type" value={selectedTicket.entryType} />
+                <InfoRow
+                  label="Complaint"
+                  value={formatComplaint(selectedTicket.complaint)}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                Ticket Message
+              </h3>
+
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                <h4 className="text-base font-semibold text-gray-900">
+                  {selectedTicket.title}
+                </h4>
+                <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
+                  {selectedTicket.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                Reported Party
+              </h3>
+
+              {selectedTicket.reportedParty ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[#FFE7D6] text-sm font-semibold text-[#BC0E01]">
+                      {selectedTicket.reportedParty.profileImage ? (
+                        <img
+                          src={selectedTicket.reportedParty.profileImage}
+                          alt={selectedTicket.reportedParty.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        getInitials(selectedTicket.reportedParty.name)
+                      )}
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {selectedTicket.reportedParty.name}
+                      </h2>
+                      <p className="text-sm text-gray-600">
+                        {toSentenceCase(selectedTicket.reportedParty.role)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <InfoRow
+                      label="Email"
+                      value={selectedTicket.reportedParty.email}
+                    />
+                    <InfoRow
+                      label="Contact"
+                      value={selectedTicket.reportedParty.phone}
+                    />
+                    <InfoRow
+                      label="Rating"
+                      value={String(selectedTicket.reportedParty.ratingAvg)}
+                    />
+                    <InfoRow
+                      label="Accused Count"
+                      value={String(selectedTicket.reportedParty.accusedCount)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No reported party attached.</p>
+              )}
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                Submission Details
+              </h3>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <InfoRow label="Ticket ID" value={selectedTicket._id} />
+                <InfoRow label="Trip ID" value={selectedTicket.trip?._id ?? null} />
+                <InfoRow
+                  label="Created At"
+                  value={formatDateTime(selectedTicket.createdAt)}
+                />
+                <InfoRow
+                  label="Updated At"
+                  value={formatDateTime(selectedTicket.updatedAt)}
+                />
+              </div>
+
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-lg bg-gray-50 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                    Trip Payload
+                  </p>
+                  <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs text-gray-700">
+                    {getJsonPreview(selectedTicket.trip)}
+                  </pre>
+                </div>
+
+                <div className="rounded-lg bg-gray-50 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                    Admin Action
+                  </p>
+                  <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs text-gray-700">
+                    {getJsonPreview(selectedTicket.adminAction)}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0  flex items-center justify-center z-50 bg-gray-500">
-          <div className="bg-white rounded-2xl w-[363px] h-[522px] p-6 flex flex-col">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Send message to the person or mark as resolved
-            </h2>
-
-            {/* Radio Options */}
-            <div className="flex items-center gap-6 mb-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className="relative">
-                  <input
-                    type="radio"
-                    name="action"
-                    value="send"
-                    checked={modalOption === 'send'}
-                    onChange={() => setModalOption('send')}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      modalOption === 'send'
-                        ? 'border-[#2C0075] bg-white'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    {modalOption === 'send' && (
-                      <div className="w-3 h-3 rounded-full bg-[#2C0075]" />
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm font-medium text-gray-900">Send message</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className="relative">
-                  <input
-                    type="radio"
-                    name="action"
-                    value="resolved"
-                    checked={modalOption === 'resolved'}
-                    onChange={() => setModalOption('resolved')}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      modalOption === 'resolved'
-                        ? 'border-[#2C0075] bg-white'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    {modalOption === 'resolved' && (
-                      <div className="w-3 h-3 rounded-full bg-[#2C0075]" />
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm font-medium text-gray-900">Resolved</span>
-              </label>
-            </div>
-
-            {/* Textarea */}
-            <div className="flex-1 mb-6">
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Send a message"
-                className="w-full h-full p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#2C0075] focus:border-transparent placeholder:text-gray-400"
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setMessage('');
-                  setModalOption('send');
-                }}
-                className="flex-1 px-[32px] py-[21px] bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button onClick={() => {
-                  setShowModal(false);
-                  setMessage('');
-                  setModalOption('send');
-                }} className="flex-1 px-[32px] py-[21px] bg-[#2C0075] text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 

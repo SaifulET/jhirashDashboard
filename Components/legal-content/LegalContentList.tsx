@@ -16,6 +16,20 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
+const getPreviewHtml = (item: LegalContentItem) => {
+  const normalizedHtml = item.contentHtml.replace(/<p><br><\/p>/g, '').trim();
+
+  if (normalizedHtml) {
+    return normalizedHtml;
+  }
+
+  if (item.plainText.trim()) {
+    return `<p>${item.plainText}</p>`;
+  }
+
+  return '<p>No content preview available.</p>';
+};
+
 const DeleteModal: React.FC<{
   isOpen: boolean;
   isDeleting: boolean;
@@ -236,9 +250,10 @@ const LegalContentList: React.FC<LegalContentListProps> = ({ type }) => {
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-3">
-                      {item.plainText || 'No content preview available.'}
-                    </p>
+                    <div
+                      className="mb-4 max-h-40 overflow-hidden text-sm text-gray-700 [&_a]:text-[#240183] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-gray-200 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:mb-2 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-item [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_strong]:font-semibold [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      dangerouslySetInnerHTML={{ __html: getPreviewHtml(item) }}
+                    />
 
                     <div className="flex gap-4 text-xs text-gray-500 flex-wrap">
                       <span>Created: {formatDate(item.createdAt)}</span>

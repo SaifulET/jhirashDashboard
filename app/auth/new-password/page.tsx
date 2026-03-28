@@ -8,7 +8,7 @@ import logo from '@/public/logo.png';
 import { useAuthStore } from '@/store/auth-store';
 
 const NewPassword: React.FC = () => {
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPasswordValue] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -96,7 +96,7 @@ const NewPassword: React.FC = () => {
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e) => setNewPasswordValue(e.target.value)}
                   placeholder="Enter password"
                   className="w-full h-[52px] pl-12 pr-12 py-3.5 bg-[#F4F4F6] border border-gray-200 rounded-xl text-base text-gray-500 placeholder-gray-500 focus:outline-none focus:border-[#240183] focus:text-gray-900"
                 />

@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { NextPage } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import logo from '@/public/logo.png';
 import { useAuthStore } from '@/store/auth-store';
 
-const SignInPage: NextPage = () => {
+const SignInContent = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -183,6 +182,14 @@ const SignInPage: NextPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const SignInPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F4F4F6]" />}>
+      <SignInContent />
+    </Suspense>
   );
 };
 

@@ -11,11 +11,13 @@ import {
 } from "@/lib/auth-storage";
 import type { ApiResponse, RefreshTokenResponseData } from "@/types/auth";
 
-type RequestConfig = InternalAxiosRequestConfig & {
+type RequestConfig = {
   _retry?: boolean;
   skipAuthToken?: boolean;
   skipAuthRefresh?: boolean;
 };
+
+type AuthRequestConfig = InternalAxiosRequestConfig & RequestConfig;
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
@@ -103,7 +105,7 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const requestConfig = config as RequestConfig;
+  const requestConfig = config as AuthRequestConfig;
 
   if (requestConfig.skipAuthToken) {
     return requestConfig;
@@ -123,7 +125,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as RequestConfig | undefined;
+    const originalRequest = error.config as AuthRequestConfig | undefined;
 
     if (
       !originalRequest ||

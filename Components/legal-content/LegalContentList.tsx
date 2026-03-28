@@ -16,15 +16,30 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 const getPreviewHtml = (item: LegalContentItem) => {
-  const normalizedHtml = item.contentHtml.replace(/<p><br><\/p>/g, '').trim();
+  const normalizedHtml = item.contentHtml
+    .replace(/<span class="ql-ui"[^>]*><\/span>/g, '')
+    .replace(/<\/?span[^>]*>/g, '')
+    .replace(/\sstyle="[^"]*"/g, '')
+    .replace(/\sclass="[^"]*"/g, '')
+    .replace(/\sdata-[a-z-]+="[^"]*"/g, '')
+    .replace(/<p><br><\/p>/g, '')
+    .trim();
 
   if (normalizedHtml) {
     return normalizedHtml;
   }
 
   if (item.plainText.trim()) {
-    return `<p>${item.plainText}</p>`;
+    return `<p>${escapeHtml(item.plainText)}</p>`;
   }
 
   return '<p>No content preview available.</p>';
@@ -233,8 +248,8 @@ const LegalContentList: React.FC<LegalContentListProps> = ({ type }) => {
                 key={item._id}
                 className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h2 className="text-lg font-semibold text-gray-900">
                         {item.title}
@@ -251,7 +266,7 @@ const LegalContentList: React.FC<LegalContentListProps> = ({ type }) => {
                     </div>
 
                     <div
-                      className="mb-4 max-h-40 overflow-hidden text-sm text-gray-700 [&_a]:text-[#240183] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-gray-200 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:mb-2 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-item [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_strong]:font-semibold [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      className="mb-4 max-w-full overflow-hidden text-sm text-gray-700 break-words [&_*]:max-w-full [&_a]:break-words [&_a]:text-[#240183] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-gray-200 [&_blockquote]:break-words [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:mb-2 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-item [&_li]:break-words [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p]:break-words [&_p]:whitespace-normal [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_strong]:font-semibold [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
                       dangerouslySetInnerHTML={{ __html: getPreviewHtml(item) }}
                     />
 
@@ -261,7 +276,7 @@ const LegalContentList: React.FC<LegalContentListProps> = ({ type }) => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 ml-4">
+                  <div className="ml-auto flex shrink-0 gap-2 md:ml-4">
                     <button
                       onClick={() => handleEdit(item._id)}
                       className="p-2 text-purple-600 hover:bg-purple-50 rounded-md transition-colors"

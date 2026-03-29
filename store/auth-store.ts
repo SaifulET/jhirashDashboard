@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import {
+  changeNameRequest,
   changePasswordRequest,
   forgotPasswordRequest,
   logoutRequest,
@@ -42,6 +43,7 @@ interface AuthStore {
     newPassword: string,
     confirmPassword: string
   ) => Promise<string>;
+  updateName: (name: string) => Promise<string>;
   logout: () => Promise<void>;
   clearPasswordResetFlow: () => void;
 }
@@ -254,6 +256,55 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         getApiErrorMessage(
           error,
           "Unable to change the password. Please try again."
+        )
+      );
+    }
+  },
+
+  updateName: async (name) => {
+    const normalizedName = name.trim();
+
+    if (!normalizedName) {
+      throw new Error("Name is required.");
+    }
+
+    try {
+      const response = await changeNameRequest({
+        name: normalizedName,
+      });
+      const currentSession = readAuthSession();
+      const fallbackAdmin = get().admin ?? currentSession.admin;
+      const nextAdmin =
+        response.data?.admin ??
+        (fallbackAdmin
+          ? {
+              ...fallbackAdmin,
+              name: response.data?.name ?? normalizedName,
+            }
+          : null);
+
+      if (nextAdmin) {
+        const nextSession = {
+          ...currentSession,
+          admin: nextAdmin,
+        };
+
+        writeAuthSession(nextSession);
+
+        set({
+          admin: nextAdmin,
+          accessToken: nextSession.accessToken,
+          refreshToken: nextSession.refreshToken,
+          isHydrated: true,
+        });
+      }
+
+      return response.message;
+    } catch (error) {
+      throw new Error(
+        getApiErrorMessage(
+          error,
+          "Unable to update your name right now."
         )
       );
     }

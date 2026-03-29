@@ -2,6 +2,8 @@ import type { AxiosRequestConfig } from "axios";
 import { apiClient, type RequestConfig } from "@/api/client";
 import type {
   ApiResponse,
+  ChangeNamePayload,
+  ChangeNameResponseData,
   ChangePasswordPayload,
   ForgotPasswordPayload,
   RefreshTokenResponseData,
@@ -77,6 +79,15 @@ export const changePasswordRequest = async (
   return response.data;
 };
 
+export const changeNameRequest = async (payload: ChangeNamePayload) => {
+  const response = await apiClient.patch<ApiResponse<ChangeNameResponseData>>(
+    "/admin/auth/change-name",
+    payload
+  );
+
+  return response.data;
+};
+
 export const logoutRequest = async (refreshToken: string) => {
   const response = await apiClient.post<ApiResponse<{ message?: string }>>(
     "/admin/auth/logout",
@@ -89,7 +100,7 @@ export const logoutRequest = async (refreshToken: string) => {
 
 export const refreshTokenRequest = async (refreshToken: string) => {
   const response = await apiClient.post<ApiResponse<RefreshTokenResponseData>>(
-    "/auth/refresh",
+    "/admin/auth/refresh",
     { refreshToken },
     publicRequestConfig
   );

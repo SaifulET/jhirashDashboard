@@ -8,7 +8,10 @@ import { useAuthStore } from '@/store/auth-store';
 export default function PersonalInformation() {
   const router = useRouter();
   const admin = useAuthStore((state) => state.admin);
+  const updateName = useAuthStore((state) => state.updateName);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [name, setName] = useState(admin?.name ?? '');
   const [tempName, setTempName] = useState(admin?.name ?? '');
 
@@ -19,18 +22,40 @@ export default function PersonalInformation() {
   }, [admin?.name]);
 
   const handleEdit = () => {
+    setErrorMessage('');
     setTempName(name);
     setIsEditing(true);
   };
 
   const handleCancel = () => {
+    setErrorMessage('');
     setTempName(name);
     setIsEditing(false);
   };
 
-  const handleSave = () => {
-    setName(tempName);
-    setIsEditing(false);
+  const handleSave = async () => {
+    setErrorMessage('');
+
+    if (!tempName.trim()) {
+      setErrorMessage('Name is required.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await updateName(tempName);
+      setName(tempName.trim());
+      setIsEditing(false);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Unable to update your name right now.'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,19 +157,26 @@ export default function PersonalInformation() {
         )}
 
         {isEditing && (
-          <div className="flex justify-end gap-3 mb-8 bg-[#ECEBEF] pb-[20px] pr-[20px] rounded-b-lg">
+          <div className="mb-8 rounded-b-lg bg-[#ECEBEF] pb-[20px] pr-[20px]">
+            {errorMessage && (
+              <p className="px-[20px] pb-4 text-sm text-red-600">{errorMessage}</p>
+            )}
+            <div className="flex justify-end gap-3">
             <button
               onClick={handleCancel}
+              disabled={isSaving}
               className="px-6 py-2.5 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors font-medium"
             >
               Cancel
             </button>
             <button
-              onClick={handleSave}
+              onClick={() => void handleSave()}
+              disabled={isSaving}
               className="bg-[#240183] text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
             >
-              Save
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
+          </div>
           </div>
         )}
 

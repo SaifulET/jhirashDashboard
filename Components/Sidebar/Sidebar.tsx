@@ -8,7 +8,6 @@ import {
   Car01FreeIcons, 
   LayoutGridIcon,
   ChartLineData01Icon,
-  Notification02Icon,
   Settings02Icon,
   MotorbikeIcon,
   CreditCardIcon,
@@ -83,12 +82,6 @@ export default function DashboardLayout({
       label: "Analytics",
       id: "analytics",
       path: "/analytics",
-    },
-    {
-      icon: <HugeiconsIcon icon={Notification02Icon} size={iconSize} />,
-      label: "Notifications",
-      id: "notifications",
-      path: "/notifications",
     },
   ], [iconSize]);
 

@@ -2,6 +2,7 @@
 
 import MonthlyBreakdown from '@/Components/dashboard/MonthlyBreakdown'
 import UserOverview from '@/Components/dashboard/UserMatrics'
+import { useAuthStore } from '@/store/auth-store'
 import { useDashboardStore } from '@/store/dashboard-store'
 import React, { useEffect, useState } from 'react'
 
@@ -9,21 +10,27 @@ function DashboardPage() {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const overview = useDashboardStore((state) => state.overview);
   const isLoading = useDashboardStore((state) => state.isLoading);
   const errorMessage = useDashboardStore((state) => state.errorMessage);
   const fetchOverview = useDashboardStore((state) => state.fetchOverview);
 
   useEffect(() => {
+    if (!isHydrated || !accessToken) {
+      return;
+    }
+
     void fetchOverview(selectedMonth, selectedYear);
-  }, [fetchOverview, selectedMonth, selectedYear]);
+  }, [accessToken, fetchOverview, isHydrated, selectedMonth, selectedYear]);
 
   const monthlyBreakdown = overview?.monthlyBreakdown;
   const userOverview = overview?.userOverview;
 
   return (
     <div className='px-[200px] py-[40px] bg-[#F4F4F6] min-h-screen'>
-      {errorMessage && (
+      {isHydrated && accessToken && errorMessage && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {errorMessage}
         </div>

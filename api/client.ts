@@ -66,7 +66,7 @@ const refreshAccessToken = async () => {
     }
 
     const response = await axios.post<ApiResponse<RefreshTokenResponseData>>(
-      `${API_BASE_URL}/auth/refresh`,
+      `${API_BASE_URL}/admin/auth/refresh`,
       { refreshToken: currentSession.refreshToken },
       {
         headers: {
@@ -74,6 +74,11 @@ const refreshAccessToken = async () => {
         },
       }
     );
+
+    if (!response.data.data.accessToken) {
+      await clearSessionState();
+      return null;
+    }
 
     const refreshedSession: StoredAuthSession = {
       admin: response.data.data.admin ?? currentSession.admin,
@@ -104,14 +109,21 @@ export const apiClient = axios.create({
   },
 });
 
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(async (config) => {
   const requestConfig = config as AuthRequestConfig;
 
   if (requestConfig.skipAuthToken) {
     return requestConfig;
   }
 
-  const { accessToken } = readAuthSession();
+  const currentSession = readAuthSession();
+  let accessToken = currentSession.accessToken;
+
+  // If the access token is missing after a reload but a refresh token exists,
+  // try to restore the session before the protected request is sent.
+  if (!accessToken && currentSession.refreshToken && !requestConfig.skipAuthRefresh) {
+    accessToken = await refreshAccessToken();
+  }
 
   if (accessToken) {
     const headers = AxiosHeaders.from(requestConfig.headers);

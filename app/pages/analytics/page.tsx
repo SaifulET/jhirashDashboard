@@ -2,12 +2,15 @@
 
 import RevenueChart from '@/Components/analytics/RevenueMetrics'
 import UserOverview from '@/Components/dashboard/UserMatrics'
+import { useAuthStore } from '@/store/auth-store'
 import { useDashboardStore } from '@/store/dashboard-store'
 import React, { useEffect, useState } from 'react'
 
 function AnalyticsPage() {
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const analytics = useDashboardStore((state) => state.analytics);
   const isAnalyticsLoading = useDashboardStore((state) => state.isAnalyticsLoading);
   const analyticsErrorMessage = useDashboardStore(
@@ -16,15 +19,19 @@ function AnalyticsPage() {
   const fetchAnalytics = useDashboardStore((state) => state.fetchAnalytics);
 
   useEffect(() => {
+    if (!isHydrated || !accessToken) {
+      return;
+    }
+
     void fetchAnalytics(selectedYear);
-  }, [fetchAnalytics, selectedYear]);
+  }, [accessToken, fetchAnalytics, isHydrated, selectedYear]);
 
   const revenueMetrics = analytics?.revenueMetrics;
   const userMetrics = analytics?.userMetrics;
 
   return (
     <div className='px-[200px] py-[40px] bg-[#F4F4F6] min-h-screen'>
-      {analyticsErrorMessage && (
+      {isHydrated && accessToken && analyticsErrorMessage && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {analyticsErrorMessage}
         </div>

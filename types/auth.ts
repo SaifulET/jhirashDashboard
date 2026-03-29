@@ -54,6 +54,15 @@ export interface ChangePasswordPayload {
   confirmPassword: string;
 }
 
+export interface ChangeNamePayload {
+  name: string;
+}
+
+export interface ChangeNameResponseData {
+  admin?: Admin;
+  name?: string;
+}
+
 export interface RefreshTokenResponseData {
   accessToken: string;
   refreshToken?: string;

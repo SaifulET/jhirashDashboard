@@ -34,19 +34,6 @@ const getDriverStatusStyles = (status: string) => {
   }
 };
 
-const getUserStatusStyles = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'verified':
-      return 'bg-[#D7FFEA] text-[#05895A]';
-    case 'denied':
-      return 'bg-[#FEE4DF] text-[#BC0E01]';
-    case 'pending':
-      return 'bg-[#FEE4D6] text-[#E26A02]';
-    default:
-      return 'bg-gray-100 text-gray-700';
-  }
-};
-
 const getDeletionStatusStyles = (status: string) =>
   status.toLowerCase() === 'yes' ? 'text-[#BC0E01]' : 'text-[#05895A]';
 
@@ -336,7 +323,7 @@ const DriverManagement: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1040px]">
+            <table className="w-full min-w-[960px]">
               <thead>
                 <tr className="bg-[#EBEBEB]">
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
@@ -350,9 +337,6 @@ const DriverManagement: React.FC = () => {
                   </th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
                     Contact
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
-                    User Status
                   </th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
                     Driver Status
@@ -378,7 +362,7 @@ const DriverManagement: React.FC = () => {
                 {isLoading && !drivers.length && (
                   <tr>
                     <td
-                      colSpan={11}
+                      colSpan={10}
                       className="px-6 py-10 text-center text-sm text-gray-500"
                     >
                       Loading drivers...
@@ -389,7 +373,7 @@ const DriverManagement: React.FC = () => {
                 {!isLoading && currentDrivers.length === 0 && (
                   <tr>
                     <td
-                      colSpan={11}
+                      colSpan={10}
                       className="px-6 py-10 text-center text-sm text-gray-500"
                     >
                       No drivers found for the selected filters.
@@ -411,15 +395,6 @@ const DriverManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {driver.contact}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-md text-xs font-medium ${getUserStatusStyles(
-                          driver.userStatus
-                        )}`}
-                      >
-                        {toLabelCase(driver.userStatus)}
-                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <span

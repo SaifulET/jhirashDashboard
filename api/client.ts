@@ -21,7 +21,7 @@ type AuthRequestConfig = InternalAxiosRequestConfig & RequestConfig;
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "https://jhirash-backend.vercel.app";
+  "https://api.ma3llc.co";
 
 let refreshPromise: Promise<string | null> | null = null;
 

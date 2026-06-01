@@ -1,16 +1,19 @@
 import { create } from "zustand";
 import {
+  getPaymentSharePercentagesRequest,
   getRiderPaymentTripDetailRequest,
   getRiderPaymentsRequest,
 } from "@/api/payments";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type {
+  PaymentSharePercentages,
   RiderPaymentItem,
   RiderPaymentTripDetailResponseData,
 } from "@/types/payment";
 
 interface PaymentStore {
   payments: RiderPaymentItem[];
+  paymentSharePercentages: PaymentSharePercentages | null;
   selectedTripDetail: RiderPaymentTripDetailResponseData | null;
   isLoading: boolean;
   isDetailLoading: boolean;
@@ -22,6 +25,7 @@ interface PaymentStore {
 
 export const usePaymentStore = create<PaymentStore>((set) => ({
   payments: [],
+  paymentSharePercentages: null,
   selectedTripDetail: null,
   isLoading: false,
   isDetailLoading: false,
@@ -35,7 +39,10 @@ export const usePaymentStore = create<PaymentStore>((set) => ({
     });
 
     try {
-      const firstPageResponse = await getRiderPaymentsRequest();
+      const [firstPageResponse, sharePercentagesResponse] = await Promise.all([
+        getRiderPaymentsRequest(),
+        getPaymentSharePercentagesRequest(),
+      ]);
       let allPayments = firstPageResponse.data.items;
       const { totalPages, limit } = firstPageResponse.data.pagination;
 
@@ -55,6 +62,7 @@ export const usePaymentStore = create<PaymentStore>((set) => ({
 
       set({
         payments: allPayments,
+        paymentSharePercentages: sharePercentagesResponse.data,
         isLoading: false,
       });
     } catch (error) {

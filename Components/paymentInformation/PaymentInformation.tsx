@@ -20,9 +20,20 @@ const formatCurrency = (currency: string, value: number) => {
   }
 };
 
+const formatPercent = (value?: number) => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return '';
+  }
+
+  return `(${Number.isInteger(value) ? value : value.toFixed(2)}%)`;
+};
+
 export default function PaymentInformation() {
   const router = useRouter();
   const payments = usePaymentStore((state) => state.payments);
+  const paymentSharePercentages = usePaymentStore(
+    (state) => state.paymentSharePercentages
+  );
   const isLoading = usePaymentStore((state) => state.isLoading);
   const errorMessage = usePaymentStore((state) => state.errorMessage);
   const fetchPayments = usePaymentStore((state) => state.fetchPayments);
@@ -151,10 +162,10 @@ export default function PaymentInformation() {
                   Total Fare
                 </th>
                 <th className="text-left px-6 py-3.5 text-sm font-semibold text-gray-700">
-                  Driver gets(60%)
+                  Driver gets{formatPercent(paymentSharePercentages?.driverGets)}
                 </th>
                 <th className="text-left px-6 py-3.5 text-sm font-semibold text-gray-700">
-                  Received(40%)
+                  Received{formatPercent(paymentSharePercentages?.received)}
                 </th>
                 <th className="text-left px-6 py-3.5 text-sm font-semibold text-gray-700">
                   Action

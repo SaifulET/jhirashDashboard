@@ -39,6 +39,11 @@ export interface RiderPaymentsResponseData {
   pagination: RiderPaymentsPagination;
 }
 
+export interface PaymentSharePercentages {
+  driverGets: number;
+  received: number;
+}
+
 export interface PaymentTripPoint {
   type: string;
   coordinates: number[];

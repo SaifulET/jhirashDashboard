@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/client";
 import type { ApiResponse } from "@/types/auth";
 import type {
+  PaymentSharePercentages,
   RiderPaymentsResponseData,
   RiderPaymentTripDetailResponseData,
 } from "@/types/payment";
@@ -14,6 +15,14 @@ export const getRiderPaymentsRequest = async (params?: {
     {
       params,
     }
+  );
+
+  return response.data;
+};
+
+export const getPaymentSharePercentagesRequest = async () => {
+  const response = await apiClient.get<ApiResponse<PaymentSharePercentages>>(
+    "/admin/config/payment-share"
   );
 
   return response.data;

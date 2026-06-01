@@ -5,6 +5,7 @@ import {
   getRiderHistoryRequest,
   getRiderReportsRequest,
   getRidersRequest,
+  hardDeleteRiderRequest,
 } from "@/api/riders";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type {
@@ -32,6 +33,7 @@ interface RiderStore {
   fetchRiderHistory: (riderId: string) => Promise<void>;
   fetchRiderReports: (riderId: string) => Promise<void>;
   deleteRider: (riderId: string) => Promise<string>;
+  hardDeleteRider: (riderId: string) => Promise<string>;
 }
 
 export const useRiderStore = create<RiderStore>((set) => ({
@@ -179,6 +181,29 @@ export const useRiderStore = create<RiderStore>((set) => ({
     } catch (error) {
       throw new Error(
         getApiErrorMessage(error, "Unable to delete this rider right now.")
+      );
+    }
+  },
+
+  hardDeleteRider: async (riderId) => {
+    try {
+      const response = await hardDeleteRiderRequest(riderId);
+
+      set((state) => ({
+        riders: state.riders.filter((rider) => rider._id !== riderId),
+        selectedRiderProfile:
+          state.selectedRiderProfile?._id === riderId
+            ? null
+            : state.selectedRiderProfile,
+      }));
+
+      return response.message;
+    } catch (error) {
+      throw new Error(
+        getApiErrorMessage(
+          error,
+          "Unable to permanently delete this rider right now."
+        )
       );
     }
   },

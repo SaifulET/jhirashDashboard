@@ -7,6 +7,7 @@ import {
   getDriverHistoryRequest,
   getDriverReportsRequest,
   getDriversRequest,
+  hardDeleteDriverRequest,
   reviewDriverDocumentRequest,
   updateDriverAccountStatusRequest,
 } from "@/api/drivers";
@@ -58,6 +59,7 @@ interface DriverStore {
     status: "active" | "suspended" | "pending"
   ) => Promise<string>;
   deleteDriver: (driverId: string) => Promise<string>;
+  hardDeleteDriver: (driverId: string) => Promise<string>;
 }
 
 export const useDriverStore = create<DriverStore>((set) => ({
@@ -344,6 +346,29 @@ export const useDriverStore = create<DriverStore>((set) => ({
         getApiErrorMessage(
           error,
           "Unable to delete this driver right now."
+        )
+      );
+    }
+  },
+
+  hardDeleteDriver: async (driverId) => {
+    try {
+      const response = await hardDeleteDriverRequest(driverId);
+
+      set((state) => ({
+        drivers: state.drivers.filter((driver) => driver._id !== driverId),
+        selectedDriverProfile:
+          state.selectedDriverProfile?._id === driverId
+            ? null
+            : state.selectedDriverProfile,
+      }));
+
+      return response.message;
+    } catch (error) {
+      throw new Error(
+        getApiErrorMessage(
+          error,
+          "Unable to permanently delete this driver right now."
         )
       );
     }

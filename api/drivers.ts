@@ -84,6 +84,14 @@ export const deleteDriverRequest = async (driverId: string) => {
   return response.data;
 };
 
+export const hardDeleteDriverRequest = async (driverId: string) => {
+  const response = await apiClient.delete<ApiResponse<{ message?: string }>>(
+    `/admin/drivers/${driverId}/hard-delete`
+  );
+
+  return response.data;
+};
+
 export const getDriverHistoryRequest = async (driverId: string) => {
   const response = await apiClient.get<ApiResponse<DriverHistoryResponseData>>(
     `/admin/drivers/${driverId}/history`

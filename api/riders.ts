@@ -37,6 +37,14 @@ export const deleteRiderRequest = async (riderId: string) => {
   return response.data;
 };
 
+export const hardDeleteRiderRequest = async (riderId: string) => {
+  const response = await apiClient.delete<ApiResponse<{ message?: string }>>(
+    `/admin/riders/${riderId}/hard-delete`
+  );
+
+  return response.data;
+};
+
 export const getRiderHistoryRequest = async (riderId: string) => {
   const response = await apiClient.get<ApiResponse<RiderHistoryResponseData>>(
     `/admin/riders/${riderId}/history`

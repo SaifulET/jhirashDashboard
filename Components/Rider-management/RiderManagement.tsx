@@ -38,7 +38,7 @@ const RiderManagement: React.FC = () => {
   const isLoading = useRiderStore((state) => state.isLoading);
   const errorMessage = useRiderStore((state) => state.errorMessage);
   const fetchRiders = useRiderStore((state) => state.fetchRiders);
-  const deleteRider = useRiderStore((state) => state.deleteRider);
+  const hardDeleteRider = useRiderStore((state) => state.hardDeleteRider);
   const [currentPage, setCurrentPage] = useState(1);
   const [userStatusFilter, setUserStatusFilter] = useState<string>('all');
   const [deletionStatusFilter, setDeletionStatusFilter] = useState<string>('all');
@@ -133,13 +133,13 @@ const RiderManagement: React.FC = () => {
     setActionErrorMessage('');
 
     try {
-      await deleteRider(deleteModalRider._id);
+      await hardDeleteRider(deleteModalRider._id);
       setDeleteModalRider(null);
     } catch (error) {
       setActionErrorMessage(
         error instanceof Error
           ? error.message
-          : 'Unable to delete this rider right now.'
+          : 'Unable to permanently delete this rider right now.'
       );
     } finally {
       setIsDeleting(false);
@@ -464,10 +464,11 @@ const RiderManagement: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Delete Rider
+              Permanently Delete Rider
             </h2>
             <p className="text-sm text-gray-500 mb-6">
-              Are you sure you want to delete {deleteModalRider.riderName}?
+              This will permanently delete {deleteModalRider.riderName} and
+              their account records. This action cannot be undone.
             </p>
 
             <div className="flex justify-end gap-3">
@@ -482,7 +483,7 @@ const RiderManagement: React.FC = () => {
                 disabled={isDeleting}
                 className="px-5 py-2.5 rounded-lg bg-[#BC0E01] text-white hover:opacity-90 transition-opacity disabled:opacity-70"
               >
-                {isDeleting ? 'Deleting...' : 'Delete'}
+                {isDeleting ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
           </div>

@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Calendar03Icon, Car02Icon, Clock01Icon, Money04Icon, Vynil01Icon } from '@hugeicons/core-free-icons';
-import Image from 'next/image';
 import Link from 'next/link';
+import ProfileImage from '@/Components/common/ProfileImage';
 
 export default function RiderTripDetail() {
   return (
@@ -36,9 +36,10 @@ export default function RiderTripDetail() {
           {/* User Info */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <img 
-                src="/profile.svg" 
+              <ProfileImage
                 alt="David John"
+                width={56}
+                height={56}
                 className="w-14 h-14 rounded-full"
               />
               <div>
@@ -139,7 +140,7 @@ export default function RiderTripDetail() {
             {/* Rider Review */}
             <div className="flex gap-3 px-[16px] py-[12px] bg-[#F4F4F6]">
             
-              <img src="/profile.svg" alt="Rider Profile" className="w-10 h-10 rounded-full" />
+              <ProfileImage alt="Rider Profile" width={40} height={40} className="w-10 h-10 rounded-full" />
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div>
@@ -160,7 +161,7 @@ export default function RiderTripDetail() {
             {/* Driver Review */}
             <div className="flex gap-3 px-[16px] py-[12px] bg-[#F4F4F6]">
               
-              <Image src="/profile.svg" alt="Profile" width={40} height={40} className="rounded-full" />
+              <ProfileImage alt="Profile" width={40} height={40} className="rounded-full" />
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div>

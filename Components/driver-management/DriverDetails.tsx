@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import {
   ArrowLeft,
   Phone,
@@ -22,6 +21,7 @@ import DriverLicenseView from './DriverLicenseView';
 import VehicleInfoView from './VehicleInfoView';
 import VehicleInsuranceView from './VehicleInsuranceView';
 import VehicleRegistrationView from './VehicleRegistrationView';
+import ProfileImage from '@/Components/common/ProfileImage';
 
 type TabType = 'Profile' | 'Documents' | 'History' | 'Reports';
 type DocumentViewType =
@@ -305,8 +305,8 @@ const DriverDetails = () => {
                       <div className="flex items-center gap-8 mb-8">
                         <div className="relative">
                           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
-                            <Image
-                              src={selectedDriverProfile.profileImage || '/profile.svg'}
+                            <ProfileImage
+                              src={selectedDriverProfile.profileImage}
                               alt={selectedDriverProfile.name}
                               width={96}
                               height={96}
@@ -650,8 +650,7 @@ const DriverDetails = () => {
                           >
                             <div className="flex items-start gap-3 mb-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-300">
-                                <Image
-                                  src="/profile.svg"
+                                <ProfileImage
                                   alt={report.reporterName || 'Reporter'}
                                   width={48}
                                   height={48}

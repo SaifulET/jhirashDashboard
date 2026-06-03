@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import {
   AlertCircle,
   ArrowLeft,
@@ -20,6 +19,7 @@ import {
   Money04Icon,
   Vynil01Icon,
 } from '@hugeicons/core-free-icons';
+import ProfileImage from '@/Components/common/ProfileImage';
 
 type TabType = 'Profile' | 'History' | 'Reports';
 
@@ -223,8 +223,8 @@ const RiderDetailPage = () => {
                       <div className="flex items-center gap-8 mb-8">
                         <div className="relative">
                           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
-                            <Image
-                              src={selectedRiderProfile.profileImage || '/profile.svg'}
+                            <ProfileImage
+                              src={selectedRiderProfile.profileImage}
                               alt={selectedRiderProfile.name}
                               width={96}
                               height={96}
@@ -402,8 +402,8 @@ const RiderDetailPage = () => {
                           >
                             <div className="flex items-start gap-3 mb-4">
                               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-300">
-                                <Image
-                                  src={ride.driver.profileImage || '/profile.svg'}
+                                <ProfileImage
+                                  src={ride.driver.profileImage}
                                   alt={ride.driver.name}
                                   width={48}
                                   height={48}
@@ -561,8 +561,7 @@ const RiderDetailPage = () => {
                           >
                             <div className="flex items-start gap-3 mb-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-300">
-                                <Image
-                                  src="/profile.svg"
+                                <ProfileImage
                                   alt={report.reporterName || 'Reporter'}
                                   width={48}
                                   height={48}

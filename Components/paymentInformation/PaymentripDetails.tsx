@@ -10,10 +10,10 @@ import {
   Money04Icon,
   Vynil01Icon,
 } from '@hugeicons/core-free-icons';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { usePaymentStore } from '@/store/payment-store';
+import ProfileImage from '@/Components/common/ProfileImage';
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-US', {
@@ -109,8 +109,8 @@ export default function PaymentTripDetail() {
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Image
-                  src={trip.driver.profileImage || '/profile.svg'}
+                <ProfileImage
+                  src={trip.driver.profileImage}
                   alt={trip.driver.name}
                   width={56}
                   height={56}
@@ -230,8 +230,7 @@ export default function PaymentTripDetail() {
 
             <div className="space-y-4 pt-4">
               <div className="flex gap-3 px-[16px] py-[12px] bg-[#F4F4F6] rounded-lg">
-                <Image
-                  src="/profile.svg"
+                <ProfileImage
                   alt="Rider review"
                   width={40}
                   height={40}
@@ -257,8 +256,8 @@ export default function PaymentTripDetail() {
               </div>
 
               <div className="flex gap-3 px-[16px] py-[12px] bg-[#F4F4F6] rounded-lg">
-                <Image
-                  src={trip.driver.profileImage || '/profile.svg'}
+                <ProfileImage
+                  src={trip.driver.profileImage}
                   alt={trip.driver.name}
                   width={40}
                   height={40}

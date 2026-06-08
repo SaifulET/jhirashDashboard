@@ -15,6 +15,13 @@ import type {
   RiderReportItem,
 } from "@/types/rider";
 
+const sortRidersByName = (riders: RiderListItem[]) =>
+  [...riders].sort((firstRider, secondRider) =>
+    firstRider.riderName.localeCompare(secondRider.riderName, undefined, {
+      sensitivity: "base",
+    })
+  );
+
 interface RiderStore {
   riders: RiderListItem[];
   selectedRiderProfile: RiderProfile | null;
@@ -76,7 +83,7 @@ export const useRiderStore = create<RiderStore>((set) => ({
       }
 
       set({
-        riders: allRiders,
+        riders: sortRidersByName(allRiders),
         isLoading: false,
       });
     } catch (error) {

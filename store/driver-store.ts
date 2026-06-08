@@ -22,6 +22,13 @@ import type {
   ReviewDriverDocumentPayload,
 } from "@/types/driver";
 
+const sortDriversByName = (drivers: DriverListItem[]) =>
+  [...drivers].sort((firstDriver, secondDriver) =>
+    firstDriver.driverName.localeCompare(secondDriver.driverName, undefined, {
+      sensitivity: "base",
+    })
+  );
+
 interface DriverStore {
   drivers: DriverListItem[];
   selectedDriverProfile: DriverProfile | null;
@@ -109,7 +116,7 @@ export const useDriverStore = create<DriverStore>((set) => ({
       }
 
       set({
-        drivers: allDrivers,
+        drivers: sortDriversByName(allDrivers),
         isLoading: false,
       });
     } catch (error) {
